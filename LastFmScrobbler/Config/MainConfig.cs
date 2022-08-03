@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using SiraUtil.Converters;
-using Version = SemVer.Version;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
@@ -12,10 +11,6 @@ namespace LastFmScrobbler.Config
     public class MainConfig
     {
         public Action? OnChanged;
-
-        [NonNullable]
-        [UseConverter(typeof(VersionConverter))]
-        public Version Version { get; set; } = new("0.0.0");
 
         public virtual string? SessionName { get; set; } = null;
 

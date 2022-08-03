@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using LastFmScrobbler.Config;
-using SiraUtil.Interfaces;
-using SiraUtil.Tools;
+using SiraUtil.Services;
+using SiraUtil.Logging;
 using Zenject;
 
 namespace LastFmScrobbler.Managers
@@ -22,7 +22,7 @@ namespace LastFmScrobbler.Managers
         {
             _levelFinisher.MissionLevelFinished += MissionFinished;
             _levelFinisher.StandardLevelFinished += StandardFinished;
-            _levelFinisher.MultiplayerLevelFinished += MultiplayerFinished;
+            _levelFinisher.MultiplayerLevelDidFinish += MultiplayerLevelDidFinish;
             _gameScenesManager.transitionDidFinishEvent += TransitionFinished;
         }
 
@@ -30,7 +30,7 @@ namespace LastFmScrobbler.Managers
         {
             _levelFinisher.MissionLevelFinished -= MissionFinished;
             _levelFinisher.StandardLevelFinished -= StandardFinished;
-            _levelFinisher.MultiplayerLevelFinished -= MultiplayerFinished;
+            _levelFinisher.MultiplayerLevelDidFinish += MultiplayerLevelDidFinish;
             _gameScenesManager.transitionDidFinishEvent -= TransitionFinished;
         }
 
@@ -44,9 +44,9 @@ namespace LastFmScrobbler.Managers
             }
         }
 
-        private void MultiplayerFinished(LevelCompletionResults results, Dictionary<string, LevelCompletionResults> _)
+        private void MultiplayerLevelDidFinish(MultiplayerLevelScenesTransitionSetupDataSO _setupDataSO, MultiplayerResultsData multiplayerResults)
         {
-            OnLevelFinished(results);
+            OnLevelFinished(multiplayerResults.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults);
         }
 
         private void StandardFinished(LevelCompletionResults results)
@@ -85,9 +85,9 @@ namespace LastFmScrobbler.Managers
                 }
                 catch (Exception e)
                 {
-                    _log.Warning(
+                    _log.Warn(
                         $"Failed to send now playing: {_lastBeatmap.songAuthorName} - {_lastBeatmap.songAuthorName}");
-                    _log.Warning(e);
+                    _log.Warn(e);
                 }
             }
 
@@ -100,7 +100,7 @@ namespace LastFmScrobbler.Managers
 
             if (toScrobble is null || _lastBeatmap is null)
             {
-                _log.Warning("Unexpected null in song data");
+                _log.Warn("Unexpected null in song data");
                 return;
             }
 
@@ -122,14 +122,14 @@ namespace LastFmScrobbler.Managers
                 if (res.Scrobbles.Attribute.Accepted != 1)
                 {
                     var ignoredMessage = res.Scrobbles.Data.IgnoredMessage;
-                    _log.Warning($"Scrobble was rejected with code: {ignoredMessage.Code}, message: {ignoredMessage.Text}");
+                    _log.Warn($"Scrobble was rejected with code: {ignoredMessage.Code}, message: {ignoredMessage.Text}");
                     // TODO: cache failing scrobbles and re-submit them later 
                 }
             }
             catch (Exception e)
             {
-                _log.Warning($"Failed to scrobble: {_lastBeatmap.songAuthorName} - {_lastBeatmap.songAuthorName}");
-                _log.Warning(e);
+                _log.Warn($"Failed to scrobble: {_lastBeatmap.songAuthorName} - {_lastBeatmap.songAuthorName}");
+                _log.Warn(e);
             }
         }
 

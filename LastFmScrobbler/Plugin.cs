@@ -15,20 +15,15 @@ namespace LastFmScrobbler
         private readonly Logger _log;
 
         [Init]
-        public Plugin(IPAConfig cfg, Logger log, Zenjector injector, PluginMetadata metadata)
+        public Plugin(IPAConfig cfg, Logger log, Zenjector injector)
         {
             _log = log;
 
             var config = cfg.Generated<MainConfig>();
-            config.Version = metadata.Version;
 
-            injector.On<PCAppInit>().Pseudo(container =>
-            {
-                container.BindLoggerAsSiraLogger(log);
-                container.BindInstance(config).AsSingle();
-            });
-
-            injector.OnMenu<Installers.MenuInstaller>();
+            injector.UseLogger(log);
+            injector.Install<Installers.AppInstaller>(Location.App, config);
+            injector.Install<Installers.MenuInstaller>(Location.Menu);
 
             _log.Debug("Finished plugin initialization");
         }

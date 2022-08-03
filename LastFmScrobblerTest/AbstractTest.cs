@@ -5,7 +5,7 @@ using LastFmScrobbler.Config;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SiraUtil;
-using SiraUtil.Tools;
+using SiraUtil.Logging;
 using Zenject;
 
 namespace LastFmScrobblerTest
@@ -26,11 +26,13 @@ namespace LastFmScrobblerTest
             _container.Bind<SiraLog>().To<MockSiraLog>().AsSingle();
             // Requred for WebClient
             _container.Bind(typeof(SiraLog).Assembly.GetType("SiraUtil.Config")).FromNew().AsSingle();
-            BindInitializable<WebClient>();
+            //BindInitializable<WebClient>();
 
             var strConfig = File.ReadAllText("../../../test_config.json");
 
-            _container.Bind<MainConfig>().FromInstance(JsonConvert.DeserializeObject<MainConfig>(strConfig));
+            var cfg = JsonConvert.DeserializeObject<MainConfig>(strConfig);
+
+            _container.Bind<MainConfig>().FromInstance(cfg);
 
             SetupContainer();
 
