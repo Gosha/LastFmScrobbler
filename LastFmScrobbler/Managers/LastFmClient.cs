@@ -107,6 +107,8 @@ namespace LastFmScrobbler.Managers
                 {"sk", _config.SessionKey!}
             };
 
+            _log.Debug($"Attempting to send scrobble request for {artist} - {track}");
+            
             var resp = await PostAsync(parameters);
 
             _log.Debug($"Got response for scrobble request {resp}");
